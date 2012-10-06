@@ -1,0 +1,23 @@
+PATH
+  remote: .
+  specs:
+    when (0.1.0)
+      eventmachine (~> 1)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    em-minitest-spec (1.1.1)
+      eventmachine
+    eventmachine (1.0.0)
+    minitest (2.12.1)
+    rake (0.9.2.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  em-minitest-spec (~> 1.1)
+  minitest (~> 2.0)
+  rake (~> 0.9)
+  when!
