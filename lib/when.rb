@@ -110,6 +110,10 @@ module When
     end
   end
 
+  def self.defer
+    Deferred.new
+  end
+
   def self.deferred(val)
     return val if val.respond_to?(:callback) && val.respond_to?(:errback)
     Deferred.resolved(val).promise
