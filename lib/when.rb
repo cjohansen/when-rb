@@ -111,7 +111,9 @@ module When
   end
 
   def self.defer
-    Deferred.new
+    deferred = Deferred.new
+    yield deferred if block_given?
+    deferred
   end
 
   def self.deferred(val)
