@@ -32,14 +32,11 @@ Gem::Specification.new do |s|
   s.email       = ["christian@gitorious.org"]
   s.homepage    = "http://gitorious.org/gitorious/seuss"
   s.summary     = %q{A Ruby implementation of the wonderful when.js promise library}
-  #s.description = %q{}
+  s.description = %q{Currently very incomplete}
 
   s.rubyforge_project = "when"
 
-  s.add_dependency "eventmachine", "~> 1"
-
   s.add_development_dependency "minitest", "~> 2.0"
-  s.add_development_dependency "em-minitest-spec", "~> 1.1"
   s.add_development_dependency "rake", "~> 0.9"
 
   s.files         = `git ls-files`.split("\n")

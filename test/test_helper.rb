@@ -24,7 +24,5 @@
 #++
 require "bundler/setup"
 require "minitest/autorun"
-require "em/minitest/spec"
-require "eventmachine"
 
 Bundler.require(:default, :test)

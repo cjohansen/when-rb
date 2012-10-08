@@ -22,91 +22,54 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #++
-require "eventmachine"
 
 module When
   class Promise
-    def initialize(deferred = EM::DefaultDeferrable.new)
-      @deferred = deferred
-    end
-
-    def callback(&block)
-      @deferred.callback(&block)
-      self
-    end
-
-    def errback(&block)
-      @deferred.errback(&block)
-      self
-    end
+    def initialize(deferred); @deferred = deferred; end
+    def then(&block); @deferred.then(&block); end
+    def callback(&block); @deferred.callback(&block); end
+    def errback(&block); @deferred.errback(&block); end
   end
 
   class Resolver
-    def initialize(deferred = EM::DefaultDeferrable.new)
-      @deferred = deferred
-      @resolved = false
-    end
-
-    def resolve(*args)
-      mark_resolved
-      @deferred.succeed(*args)
-    end
-
-    def reject(*args)
-      mark_resolved
-      @deferred.fail(*args)
-    end
-
-    def resolved?
-      @resolved
-    end
-
-    private
-    def mark_resolved
-      raise StandardError.new("Already resolved") if @resolved
-      @resolved = true
-    end
+    def initialize(deferred); @deferred = deferred; end
+    def resolve(*args); @deferred.resolve(*args); end
+    def reject(*args); @deferred.reject(*args); end
+    def resolved?; @deferred.resolved; end
   end
 
   class Deferred
     attr_reader :resolver, :promise
 
     def initialize
-      deferred = EM::DefaultDeferrable.new
-      @resolver = Resolver.new(deferred)
-      @promise = Promise.new(deferred)
+      @resolution = nil
+      @callbacks = { :resolved => [], :rejected => [] }
+      @resolver = Resolver.new(self)
+      @promise = Promise.new(self)
     end
 
-    def resolve(*args)
-      @resolver.resolve(*args)
+    def resolve(*args); mark_resolved(:resolved, args); end
+    def reject(*args); mark_resolved(:rejected, args); end
+    def callback(&block); add_callback(:resolved, block); end
+    def then(&block); add_callback(:resolved, block); end
+    def errback(&block); add_callback(:rejected, block); end
+    def resolved?; !@resolution.nil?; end
+
+    private
+    def add_callback(type, block)
+      return notify_callbacks({ type => [block] }) if resolved?
+      @callbacks[type] << block
     end
 
-    def reject(*args)
-      @resolver.reject(*args)
+    def mark_resolved(state, args)
+      raise AlreadyResolvedError.new("Already resolved") if resolved?
+      @resolution = [state, args]
+      notify_callbacks(@callbacks)
     end
 
-    def callback(&block)
-      @promise.callback(&block)
-    end
-
-    def errback(&block)
-      @promise.errback(&block)
-    end
-
-    def resolved?
-      @resolver.resolved?
-    end
-
-    def self.resolved(value)
-      d = self.new
-      d.resolve(value)
-      d
-    end
-
-    def self.rejected(value)
-      d = self.new
-      d.reject(value)
-      d
+    def notify_callbacks(callbacks)
+      blocks = callbacks[@resolution.first] || []
+      blocks.each { |cb| cb.call(*@resolution.last) }
     end
   end
 
@@ -116,9 +79,16 @@ module When
     deferred
   end
 
-  def self.deferred(val)
-    return val if val.respond_to?(:callback) && val.respond_to?(:errback)
-    Deferred.resolved(val).promise
+  def self.resolve(val)
+    deferred = Deferred.new
+    deferred.resolve(val)
+    deferred.promise
+  end
+
+  def self.reject(val)
+    deferred = Deferred.new
+    deferred.reject(val)
+    deferred.promise
   end
 
   def self.all(promises)
@@ -155,4 +125,11 @@ module When
       p.errback { |e| block.call(e, nil, i) }
     end
   end
+
+  class AlreadyResolvedError < Exception; end
+end
+
+def When(val)
+  return val if val.respond_to?(:callback) && val.respond_to?(:errback)
+  When.resolve(val)
 end
