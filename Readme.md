@@ -1,7 +1,7 @@
 # When.rb
 
-<a href="http://travis-ci.org/cjohansen/when" class="travis">
-  <img src="https://secure.travis-ci.org/cjohansen/when.png">
+<a href="http://travis-ci.org/cjohansen/when-rb" class="travis">
+  <img src="https://secure.travis-ci.org/cjohansen/when-rb.png">
 </a>
 
 This library is a Ruby port of the wonderful JavaScript promise library
