@@ -1,5 +1,9 @@
 # When.rb
 
+<a href="http://travis-ci.org/cjohansen/when" class="travis">
+  <img src="https://secure.travis-ci.org/cjohansen/when.png">
+</a>
+
 This library is a Ruby port of the wonderful JavaScript promise library
 [when.js](https://github.com/cujojs/when). The API is kept as close to the
 original as possible. In cases where there's a trade-off between 1:1 API
